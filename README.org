@@ -86,9 +86,9 @@ in the active programming-language major-mode, e.g.
 
 in an Emacs Lisp buffer, or
 
-#+begin_example
+#+begin_src emacs-lisp
 ## ** Entry
-#+end_example
+#+end_src
 
 in an PicoLisp buffer.
 
