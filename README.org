@@ -78,8 +78,19 @@ loaded.
 
 `outxxtra' uses a fixed format `outline-regexp' (and `outline-level'), the
 one produced when applying `comment-region' on an Org-mode style headline
-in the active programming-language major-mode (e.g. ';; \*\* Entry' in an
-Emacs Lisp buffer, or '## \*\* Entry' in an PicoLisp buffer).
+in the active programming-language major-mode, e.g. 
+
+#+begin_src emacs-lisp
+;; ** Entry
+#+end_src
+
+in an Emacs Lisp buffer, or
+
+#+begin_src picolisp
+## ** Entry
+#+end_src
+
+in an PicoLisp buffer.
 
 This could be make more flexible (and customizable), albeit at the price
 that `outorg.el' would not work anymore with `outxxtra'. And - these
