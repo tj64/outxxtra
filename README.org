@@ -1,4 +1,4 @@
-#+TITLE:     outxxtra.el -- enhanced and modified out-xtra.el
+#+TITLE:     outxxtra.el - enhanced outline navigation and structure editing
 #+AUTHOR:    Thorsten Jolitz
 #+EMAIL:     tjolitz <at> gmail <dot> com
 #+DATE:      2013-02-11 Mo
@@ -15,7 +15,7 @@
 #+XSLT:
 
 
-* outxxtra.el --- Org-style outline navigation and structure editing
+* outxxtra.el- enhanced outline navigation and structure editing
 ** Copyright
 
 Copyright (C) 2013 Thorsten Jolitz
@@ -47,11 +47,10 @@ of major-mode specific functionality.
 
 New features of `outxxtra' are:
 
-1. Generic functionality that should work whereever `comment-region' and
-`uncomment-region' work. 
-
-2. Fontification of headlines (copied from Fabrice Niessen's
-'.emacs')
+ 1. Generic functionality that should work whereever `comment-region' and
+    `uncomment-region' work. 
+ 2. Fontification of headlines (copied from Fabrice Niessen's
+    '.emacs')
 
 It is highly recommended to use `outxxtra' together with `outline-magic' for
 the Org-style `outline-cycle' command.
@@ -64,13 +63,10 @@ versions or other types of Emacs have be made (yet).
 
 ** Installation
 
-Insert
-(require 'outxxtra)
-in your .emacs file to install.  If you want a different prefix
-key, insert first
-(defvar outline-minor-mode-prefix "\C-c")
-or whatever.  The prefix can only be changed before outline (minor)
-mode is loaded.
+Insert (require 'outxxtra) in your .emacs file to install. If you want a
+different prefix key, insert first (defvar outline-minor-mode-prefix "\C-c")
+or whatever. The prefix can only be changed before outline (minor) mode is
+loaded.
 
 ** ChangeLog
 
