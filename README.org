@@ -84,13 +84,8 @@ in the active programming-language major-mode, e.g.
 ;; ** Entry
 #+end_src
 
-in an Emacs Lisp buffer, or
-
-#+begin_src shell
-## ** Entry
-#+end_src
-
-in an PicoLisp buffer.
+in an Emacs Lisp buffer (in a PicoLisp buffer, '#' instead of ';' would be
+used as 'comment-start'). 
 
 This could be make more flexible (and customizable), albeit at the price
 that `outorg.el' would not work anymore with `outxxtra'. And - these
