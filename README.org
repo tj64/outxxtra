@@ -85,10 +85,10 @@ in the active programming-language major-mode, e.g.
 #+end_src
 
 in an Emacs Lisp buffer (in a PicoLisp buffer, '#' instead of ';' would be
-used as 'comment-start'). 
+used as 'comment-start' character). 
 
-This could be make more flexible (and customizable), albeit at the price
+This could be made more flexible (and customizable), albeit at the price
 that `outorg.el' would not work anymore with `outxxtra'. And - these
-Org-style heades look good, why change them?
+Org-style headers look good, why change them?
 
 

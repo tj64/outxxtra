@@ -69,9 +69,9 @@
 ;; in the active programming-language major-mode (e.g. ';; ** Entry' in an
 ;; Emacs Lisp buffer, or '## ** Entry' in an PicoLisp buffer).
 
-;; This could be make more flexible (and customizable), albeit at the price
+;; This could be made more flexible (and customizable), albeit at the price
 ;; that `outorg.el' would not work anymore with `outxxtra'. And - these
-;; Org-style heades look good, why change them?
+;; Org-style headers look good, why change them?
 
 ;; * Requires
 
