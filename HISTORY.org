@@ -7,6 +7,15 @@
 
 * NEXT Version 1.0
 
+
+** TODO harmonize keybindings outline-magic/org-mode
+   [2013-02-16 Sa 23:43]
+** DONE check outline-insert-header with html ('comment-end' !)
+   CLOSED: [2013-02-17 So 05:51]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-17 So 05:51]
+   :END:
+   [2013-02-16 Sa 23:42]
 ** DONE refactor out-xxtra.el (only extensions to out-xtra.el)
    CLOSED: [2013-02-14 Do 16:30]
    :LOGBOOK:

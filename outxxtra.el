@@ -255,7 +255,10 @@ outxxtra-level-* faces."
   "Calculate the outline regexp for the current mode."
   (let* ((comment-start-no-space
           (replace-regexp-in-string
-           "[[:space:]]+" "" comment-start))
+           "[[:space:]]+" ""
+           (if comment-start
+               comment-start
+             "#")))
          (comment-start-region
           (if (and
                comment-end
@@ -369,7 +372,7 @@ of an error, just add the package to a list of missing packages."
     (outxxtra-set-local-outline-regexp-and-level
      out-regexp 'outxxtra-calc-outline-level)
     (outxxtra-fontify-headlines out-regexp)
-    (try-require 'outorg2)))
+    (try-require 'outorg)))
 
 ;; ;; add this to your .emacs
 ;; (add-hook 'outline-minor-mode-hook 'outxxtra-hook-function)
@@ -412,6 +415,35 @@ of an error, just add the package to a list of missing packages."
 	  (show-children)
 	  (setq last (point)))))))
 
+;; copied and adapted form outline.el
+(defun outxxtra-insert-heading ()
+  "Insert a new heading at same depth at point.
+This function takes `comment-end' into account."
+  (interactive)
+  (let* ((head-with-prop
+          (save-excursion
+            (condition-case nil
+                (outline-back-to-heading)
+              (error (outline-next-heading)))
+            (if (eobp)
+                (or (caar outline-heading-alist) "")
+              (match-string 0))))
+         (head (substring-no-properties head-with-prop))
+         (com-end-p))
+    (unless (or (string-match "[ \t]\\'" head)
+		(not (string-match (concat "\\`\\(?:" outline-regexp "\\)")
+				   (concat head " "))))
+      (setq head (concat head " ")))
+    (unless (or (not comment-end) (string-equal "" comment-end))
+      (setq head (concat head " " comment-end))
+      (setq com-end-p t))
+    (unless (bolp) (end-of-line) (newline))
+    (insert head)
+    (unless (eolp)
+      (save-excursion (newline-and-indent)))
+    (and com-end-p (re-search-backward comment-end) (forward-char -1))
+    (run-hooks 'outline-insert-heading-hook)))
+
 ;; * Keybindings.
 
 ;; We provide bindings for all keys.
@@ -430,13 +462,10 @@ of an error, just add the package to a list of missing packages."
 	 (define-key map "\C-k" 'show-branches)
 	 (define-key map "\C-q" 'outline-hide-sublevels)
 	 (define-key map "\C-o" 'outline-hide-other)
-         ;; TODO move this to outorg2.el
+      	 (define-key map "RET" 'outxxtra-insert-heading)
+         ;; TODO move this to outorg.el
          ;; TODO differentiate between called in code or edit buffer
-         (define-key map "'" 'outorg2-edit-as-org)
-         ;; TODO add these keybindings to org-mode keymap (all?)
-         ;; (define-key map "\C-s" 'outxxtra-save-edits)
-         ;; (define-key map "\C-c" 'outxxtra-save-edits)
-         ;; (define-key map "'" 'outxxtra-save-edits)
+         (define-key map "'" 'outorg-edit-as-org)
 
 	 (define-key outline-minor-mode-map [menu-bar hide hide-sublevels]
 	   '("Hide Sublevels" . outline-hide-sublevels))
