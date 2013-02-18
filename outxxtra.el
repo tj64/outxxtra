@@ -291,9 +291,30 @@ any other entries, and any resulting duplicates will be removed entirely."
 (defcustom outxxtra-fontify-whole-heading-line nil
   "Non-nil means fontify the whole line for headings.
 This is useful when setting a background color for the
-outxxtra-level-* faces."
+poutxxtra-level-* faces."
   :group 'outxxtra
   :type 'boolean)
+
+(defcustom outxxtra-outline-regexp-base " [*]+ "
+  "Base for calculating the outline-regexp"
+  :group 'outxxtra
+  :type 'regexp)
+
+(defcustom outxxtra-outline-regexp-outcommented-p t
+  "Non-nil if base-regexp is outcommented to calculate outline-regexp."
+  :group 'outxxtra
+  :type 'boolean)
+
+(defcustom outxxtra-outline-regexp-replace-in-string "[][+]"
+  "Regexp for detecting (special) characters to be stripped from outline-regexp."
+  :group 'outxxtra
+  :type 'regexp)
+
+(defcustom outxxtra-outline-base-regexp-incr-level-function
+  '(lambda (str char) (setq str (concat str char)))
+  "Function used to increment 'outline-base-regexp' one level."
+  :group 'outxxtra
+  :type 'function)
 
 ;; * Functions
 
@@ -316,7 +337,7 @@ outxxtra-level-* faces."
              comment-start-no-space comment-start-no-space))))
     ;; no "^", otherwise clash with outline-magic.el
     ;; (concat "^" comment-start-region " [*]+ ")))
-    (concat comment-start-region " [*]+ ")))
+    (concat comment-start-region outxxtra-outline-regexp-base )))
 
 (defun outxxtra-calc-outline-level ()
   "Calculate the right outline level for the outxxtra-outline-regexp"
@@ -339,6 +360,39 @@ outxxtra-level-* faces."
           "[*]"
           stars
           outline-string))))
+
+
+(defun outxxtra-calc-outline-base-string-at-level (level)
+  "Return an outline heading string at level LEVEL."
+  (and (integer-or-marker-p level) (>= level 1) (<= level 8)
+       (let* ((outline-string
+             (replace-regexp-in-string
+              "[][+]"
+              ""
+              (format "%s" (outxxtra-calc-outline-regexp))))
+             (stars "*"))
+         (dotimes (i (1- level)) (setq stars (concat stars "*")))
+         (replace-regexp-in-string
+          "[*]"
+          stars
+          outline-string))))
+
+
+(defun outxxtra-transform-outline-base-regexp-to-string ()
+  (and (integer-or-marker-p level) (>= level 1) (<= level 8)
+       (let* ((outline-string
+             (replace-regexp-in-string
+              "[][+]"
+              ""
+              (format "%s" (outxxtra-calc-outline-regexp))))
+             (stars "*"))
+         (dotimes (i (1- level)) (setq stars (concat stars "*")))
+         (replace-regexp-in-string
+          "[*]"
+          stars
+          outline-string))))
+
+
 
 ;; make demote/promote from outline-magic.el work
 (defun outxxtra-make-sorted-headings-level-alist (max-level)
@@ -521,7 +575,7 @@ This function takes `comment-end' into account."
 	 (define-key map "\C-k" 'show-branches)
 	 (define-key map "\C-q" 'outline-hide-sublevels)
 	 (define-key map "\C-o" 'outline-hide-other)
-      	 (define-key map "RET" 'outxxtra-insert-heading) ; FIXME does nothing
+      	 ;; (define-key map "<RET>" 'outxxtra-insert-heading) ; FIXME 
          ;; TODO move this to outorg.el
          ;; TODO differentiate between called in code or edit buffer
          (define-key map "'" 'outorg-edit-as-org)
