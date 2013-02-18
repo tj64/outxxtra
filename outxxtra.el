@@ -341,17 +341,17 @@ outxxtra-level-* faces."
           outline-string))))
 
 ;; make demote/promote from outline-magic.el work
-(defun outxxtra-make-sorted-headings-level-list (max-level)
+(defun outxxtra-make-sorted-headings-level-alist (max-level)
   "Make a sorted list of headings used for promotion/demotion commands.
 Set this to a list of MAX-LEVEL headings as they are matched by `outline-regexp',
 top-level heading first."
   (let ((list-of-heading-levels
-         (list (outxxtra-return-heading-at-level 1))))
+         `((,(outxxtra-return-heading-at-level 1) . 1))))
     (dotimes (i (1- max-level) list-of-heading-levels)
-      (add-to-list
-       'list-of-heading-levels
-       (outxxtra-return-heading-at-level (+ i 2))
-       'APPEND))))
+            (add-to-list
+             'list-of-heading-levels
+             `(,(outxxtra-return-heading-at-level (+ i 2)) . ,(+ i 2))
+             'APPEND))))
 
 ;; *** Fontify the headlines
 
@@ -427,7 +427,7 @@ top-level heading first."
      out-regexp 'outxxtra-calc-outline-level)
     (outxxtra-fontify-headlines out-regexp)
     (setq outline-promotion-headings
-      (outxxtra-make-sorted-headings-level-list 8))))
+      (outxxtra-make-sorted-headings-level-alist 8))))
 
 ;; ;; add this to your .emacs
 ;; (add-hook 'outline-minor-mode-hook 'outxxtra-hook-function)
@@ -502,161 +502,6 @@ This function takes `comment-end' into account."
       (save-excursion (newline-and-indent)))
     (and com-end-p (re-search-backward comment-end) (forward-char -1))
     (run-hooks 'outline-insert-heading-hook)))
-
-
-;; ;; **** Promote and Demote Headings
-
-;; ;; copied and adapted form outline-magic.el
-;; (defun outxxtra-promote (&optional arg)
-;;   "Decrease the level of an outline-structure by ARG levels.
-;; When the region is active in transient-mark-mode, all headlines in the
-;; region are changed.  Otherwise the current subtree is targeted. Note that
-;; after each application of the command the scope of \"current subtree\"
-;; may have changed." 
-;;   (interactive "p")
-;;   (outxxtra-change-level (- arg)))
-
-;; ;; copied and adapted form outline-magic.el
-;; (defun outxxtra-demote (&optional arg)
-;;   "Increase the level of an outline-structure by ARG levels.
-;; When the region is active in transient-mark-mode, all headlines in the
-;; region are changed.  Otherwise the current subtree is targeted. Note that
-;; after each application of the command the scope of \"current subtree\"
-;; may have changed."
-;;   (interactive "p")
-;;   (outxxtra-change-level arg))
-
-;; ;; copied and adapted form outline-magic.el
-;; (defun outxxtra-change-level (delta)
-;;   "Workhorse for `outxxtra-demote' and `outxxtra-promote'."
-;;   (let* ((headlist (outxxtra-headings-list))
-;; 	 (atom (outline-headings-atom headlist))
-;; 	 (re (if (string-equal
-;;                   "^" (substring (format "%s" outline-regexp) 0 1))
-;;                  outline-regexp
-;;                (concat "^" outline-regexp)))
-;; 	 (transmode (and transient-mark-mode mark-active))
-;; 	 beg end)
-
-;;     ;; Find the boundaries for this operation
-;;     (save-excursion
-;;       (if transmode
-;; 	  (setq beg (min (point) (mark))
-;; 		end (max (point) (mark)))
-;; 	(outline-back-to-heading)
-;; 	(setq beg (point))
-;; 	(outline-end-of-heading)
-;; 	(outline-end-of-subtree)
-;; 	(setq end (point)))
-;;       (setq beg (move-marker (make-marker) beg)
-;; 	    end (move-marker (make-marker) end))
-
-;;       (let (head newhead level newlevel static)
-
-;; 	;; First a dry run to test if there is any trouble ahead.
-;; 	(goto-char beg)
-;; 	(while (re-search-forward re end t)
-;; 	  (outxxtra-change-heading headlist delta atom 'test))
-
-;; 	;; Now really do replace the headings
-;; 	(goto-char beg)
-;; 	(while (re-search-forward re end t)
-;; 	  (outxxtra-change-heading headlist delta atom))))))
-
-
-;; ;; copied and adapted form outline-magic.el
-;; (defun outxxtra-change-heading (headlist delta atom &optional test)
-;;   "Change heading just matched by `outline-regexp' by DELTA levels.
-;; HEADLIST can be either an alist ((\"outline-match\" . level)...) or a
-;; straight list like `outline-promotion-headings'. ATOM is a character
-;; if all headlines are composed of a single character.
-;; If TEST is non-nil, just prepare the change and error if there are problems.
-;; TEST nil means, really replace old heading with new one."
-;;   (let* ((head (outline-cleanup-match (match-string 0)))
-;; 	 (level (save-excursion
-;; 		  (beginning-of-line 1)
-;; 		  (funcall outline-level)))
-;; 	 (newhead  ; compute the new head
-;; 	  (cond
-;; 	   ((= delta 0) t)
-;; 	   ((outline-static-level-p level) t)
-;; 	   ((null headlist) nil)
-;; 	   ((consp (car headlist))
-;; 	    ;; The headlist is an association list
-;; 	    (or (car (rassoc (+ delta level) headlist))
-;; 		(and atom
-;; 		     (> (+ delta level) 0)
-;; 		     (make-string (+ delta level) atom))))
-;; 	   (t
-;; 	    ;; The headlist is a straight list - grab the correct element.
-;; 	    (let* ((l (length headlist))
-;; 		   (n1 (- l (length (member head headlist)))) ; index old
-;; 		   (n2 (+ delta n1)))                         ; index new
-;; 	      ;; Careful checking
-;; 	      (cond
-;; 	       ((= n1 l) nil)                ; head not found
-;; 	       ((< n2 0) nil)                ; newlevel too low
-;; 	       ((>= n2 l) nil)               ; newlevel too high
-;; 	       ((let* ((tail (nthcdr (min n1 n2) headlist))
-;; 		       (nilpos (- (length tail) (length (memq nil tail)))))
-;; 		  (< nilpos delta))          ; nil element between old and new
-;; 		nil)
-;; 	       (t (nth n2 headlist))))))))      ; OK, we have a match!
-;;     (if (not newhead)
-;; 	(error "Cannot shift level %d heading \"%s\" to level %d"
-;; 	       level head (+ level delta)))
-;;     (if (and (not test) (stringp newhead))
-;; 	(save-excursion
-;; 	  (beginning-of-line 1)
-;; 	  (or (looking-at (concat "[ \t]*\\(" (regexp-quote head) "\\)"))
-;; 	      (error "Please contact maintainer"))
-;; 	  (replace-match newhead t t nil 1)))))
-
-;; ;; copied and adapted form outline-magic.el
-;; (defun outxxtra-headings-list ()
-;;   "Return a list of relevant headings, either a user/mode defined
-;; list, or an alist derived from scanning the buffer."
-;;   (let (headlist)
-;;     (cond
-;;      (outline-promotion-headings
-;;       ;; configured by the user or the mode
-;;       (setq headlist outline-promotion-headings))
-
-;;      ((and (eq major-mode 'outline-mode) (string= outline-regexp "[*\^L]+"))
-;;       ;; default outline mode with original regexp
-;;       ;; this need special treatment because of the \f in the regexp
-;;       (setq headlist '(("*" . 1) ("**" . 2))))  ; will be extrapolated
-
-;;      (t ;; Check if the buffer contains a complete set of headings
-;;       (let ((re (if (string-equal
-;;                      "^" (substring (format "%s" outline-regexp) 0 1))
-;;                     outline-regexp
-;;                   (concat "^" outline-regexp)))
-;;             head level)
-;; 	(save-excursion
-;; 	  (goto-char (point-min))
-;; 	  (while (re-search-forward re nil t)
-;; 	    (save-excursion
-;; 	      (beginning-of-line 1)
-;; 	      (setq head (outline-cleanup-match (match-string 0))
-;; 		    level (funcall outline-level))
-;; 	      (add-to-list  'headlist (cons head level))))))
-;;       ;; Check for uniqueness of levels in the list
-;;       (let* ((hl headlist) entry level seen nonunique)
-;; 	(while (setq entry (car hl))
-;; 	  (setq hl (cdr hl)
-;; 		level (cdr entry))
-;; 	  (if (and (not (outline-static-level-p level))
-;; 		   (member level seen))
-;; 	      ;; We have two entries for the same level.
-;; 	      (add-to-list 'nonunique level))
-;; 	  (add-to-list 'seen level))
-;; 	(if nonunique 
-;; 	    (error "Cannot promote/demote: non-unique headings at level %s\nYou may want to configure `outline-promotion-headings'."
-;; 		   (mapconcat 'int-to-string nonunique ","))))))
-;;     ;; OK, return the list
-;;     headlist))
-
 
 ;; * Keybindings.
 
