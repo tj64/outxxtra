@@ -335,43 +335,57 @@ poutxxtra-level-* faces."
             "without 'comment-start' character defined!")))
    ;; build outcommented regexp with padding
    (t (concat
-       ;; comment-start character
+       ;; comment-start 
        (if (or (not comment-add) (eq comment-add 0))
            comment-start
-         ;; comment-start char added comment-add times
          (let ((comment-add-string comment-start))
            (dotimes (i comment-add comment-add-string)
              (setq comment-add-string
                    (concat comment-add-string comment-start)))))
+       ;; comment-padding
+       (unless
+           (string-equal
+            " "
+            (char-to-string
+             (elt outxxtra-outline-regexp-base 0)))
+         (if (not comment-padding)
+             " "
+           (cond
+            ;; comment-padding is integer
+            ((integer-or-marker-p comment-padding)
+             (dotimes (i comment-padding comment-padding-string)
+               (let ((comment-padding-string ""))
+                 (setq comment-padding-string
+                       (concat comment-padding-string " ")))))
+            ;; comment-padding is string
+            ((stringp comment-padding)
+             comment-padding)
+            (t (error "No valid comment-padding")))))
        ;; base-regexp
        outxxtra-outline-regexp-base
        ;; base-regexp does not end with space
-       (unless
+       (unless                          ; a tad naive?
            (string-equal
             " "
             (char-to-string
              (elt outxxtra-outline-regexp-base
                   (1- (length outxxtra-outline-regexp-base)))))
-         ;; no comment-padding
-         (if (not comment-padding)
-             " ")
-         (cond
-          ;; comment-padding is integer
-          ((integer-or-marker-p comment-padding)
-           (dotimes (i comment-padding comment-padding-string)
-             (let ((comment-padding-string ""))
-               (setq comment-padding-string
-                     (concat comment-padding-string " ")))))
-          ;; comment-padding is string
-          ((stringp comment-padding)
-           comment-padding)))))))
+         " ")))))
 
+;; TODO how is this called (match-data?) 'looking-at' necessary?
 (defun outxxtra-calc-outline-level ()
   "Calculate the right outline level for the outxxtra-outline-regexp"
   (save-excursion
     (save-match-data
-      (let ((len (- (match-end 0) (match-beginning 0))))
-        (- len (+ 2 (* 2 (length (format "%s" comment-start))))))))) 
+      (and
+       (looking-at (outxxtra-calc-outline-regexp))
+       (length
+        (mapconcat
+         'identity
+         (split-string
+          (match-string-no-properties 0)
+          (format "[ %s]" comment-start)
+          'OMIT-NULLS) ""))))))
 
 (defun outxxtra-return-heading-at-level (level)
   "Return an outline heading string at level LEVEL."
@@ -422,7 +436,7 @@ poutxxtra-level-* faces."
 
 
 ;; make demote/promote from outline-magic.el work
-(defun outxxtra-make-sorted-headings-level-alist (max-level)
+(defun outxxtra-make-promotion-headings-list (max-level)
   "Make a sorted list of headings used for promotion/demotion commands.
 Set this to a list of MAX-LEVEL headings as they are matched by `outline-regexp',
 top-level heading first."
@@ -508,7 +522,7 @@ top-level heading first."
      out-regexp 'outxxtra-calc-outline-level)
     (outxxtra-fontify-headlines out-regexp)
     (setq outline-promotion-headings
-      (outxxtra-make-sorted-headings-level-alist 8))))
+      (outxxtra-make-promotion-headings-list 8))))
 
 ;; ;; add this to your .emacs
 ;; (add-hook 'outline-minor-mode-hook 'outxxtra-hook-function)
