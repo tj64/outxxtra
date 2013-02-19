@@ -325,33 +325,44 @@ poutxxtra-level-* faces."
 (defun outxxtra-calc-outline-regexp ()
   "Calculate the outline regexp for the current mode."
   (cond
+   ;; just return the base-regexp
    ((not outxxtra-outline-regexp-outcommented-p)
     outxxtra-outline-regexp-base)
+   ;; base-regexp outcommented, but no 'comment-start' defined
    ((not comment-start)
     (error (concat
             "Cannot calculate outcommented outline-regexp\n"
             "without 'comment-start' character defined!")))
+   ;; build outcommented regexp with padding
    (t (concat
+       ;; comment-start character
        (if (or (not comment-add) (eq comment-add 0))
            comment-start
+         ;; comment-start char added comment-add times
          (let ((comment-add-string comment-start))
            (dotimes (i comment-add comment-add-string)
              (setq comment-add-string
                    (concat comment-add-string comment-start)))))
-       (if (not comment-padding)
-           (unless
-               (string-equal
-                " "
-                (char-to-string
-                 (elt outxxtra-outline-regexp-base
-                      (1- (length outxxtra-outline-regexp-base)))))
+       ;; base-regexp
+       outxxtra-outline-regexp-base
+       ;; base-regexp does not end with space
+       (unless
+           (string-equal
+            " "
+            (char-to-string
+             (elt outxxtra-outline-regexp-base
+                  (1- (length outxxtra-outline-regexp-base)))))
+         ;; no comment-padding
+         (if (not comment-padding)
              " ")
          (cond
+          ;; comment-padding is integer
           ((integer-or-marker-p comment-padding)
            (dotimes (i comment-padding comment-padding-string)
              (let ((comment-padding-string ""))
                (setq comment-padding-string
                      (concat comment-padding-string " ")))))
+          ;; comment-padding is string
           ((stringp comment-padding)
            comment-padding)))))))
 
