@@ -301,18 +301,27 @@ poutxxtra-level-* faces."
   :type 'regexp)
 
 (defcustom outxxtra-outline-regexp-outcommented-p t
-  "Non-nil if base-regexp is outcommented to calculate outline-regexp."
+  "Non-nil if regexp-base is outcommented to calculate outline-regexp."
   :group 'outxxtra
   :type 'boolean)
 
-(defcustom outxxtra-outline-regexp-replace-in-string "[][+]"
-  "Regexp for detecting (special) characters to be stripped from outline-regexp."
+(defcustom outxxtra-outline-regexp-special-chars "[][+]"
+  "Regexp for detecting (special) characters in outline-regexp.
+These special chars will be stripped when the outline-regexp is
+transformed into a string, e.g. when the outline-string for a
+certain level is calculated. "
   :group 'outxxtra
   :type 'regexp)
 
-(defcustom outxxtra-outline-base-regexp-incr-level-function
-  '(lambda (str char) (setq str (concat str char)))
-  "Function used to increment 'outline-base-regexp' one level."
+(defcustom outxxtra-calc-outline-base-string-at-level-function
+  '(lambda (level str char)
+     (let ((outline-string str))
+       (dotimes (i (1- level) outline-string)
+         (setq outline-string (concat outline-string char)))))
+   "Function with 3 args used to calc 'outline-regexp-base' at a certain level.
+1st arg: outline-level as Integer
+2nd arg: return-value of 'outxxtra-transform-outline-regexp-base-to-string
+3rd arg: return-value of 'outxxtra-calc-outline-level-defining-string"
   :group 'outxxtra
   :type 'function)
 
@@ -322,48 +331,60 @@ poutxxtra-level-* faces."
 
 ;; *** Calculate outline-regexp and outline-level
 
+(defun outxxtra-calc-comment-region-starter ()
+  "Return comment-region starter as string.
+Based on `comment-start' and `comment-add'."
+  (if (or (not comment-add) (eq comment-add 0))
+      comment-start
+    (let ((comment-add-string comment-start))
+      (dotimes (i comment-add comment-add-string)
+        (setq comment-add-string
+              (concat comment-add-string comment-start))))))
+
+(defun outxxtra-calc-comment-padding ()
+  "Return comment-padding as string"
+  ;; outline-regexp-base does not start with space
+  (unless
+      (string-equal                     ; a tad naive?
+       " "
+       (char-to-string
+        (elt outxxtra-outline-regexp-base 0)))
+    ;; comment-padding is nil
+    (if (not comment-padding)
+        " "
+      (cond
+       ;; comment-padding is integer
+       ((integer-or-marker-p comment-padding)
+        (dotimes (i comment-padding comment-padding-string)
+          (let ((comment-padding-string ""))
+            (setq comment-padding-string
+                  (concat comment-padding-string " ")))))
+       ;; comment-padding is string
+       ((stringp comment-padding)
+        comment-padding)
+       (t (error "No valid comment-padding"))))))
+
+
 (defun outxxtra-calc-outline-regexp ()
   "Calculate the outline regexp for the current mode."
   (cond
-   ;; just return the base-regexp
+   ;; just return the regexp-base
    ((not outxxtra-outline-regexp-outcommented-p)
     outxxtra-outline-regexp-base)
-   ;; base-regexp outcommented, but no 'comment-start' defined
+   ;; regexp-base outcommented, but no 'comment-start' defined
    ((not comment-start)
     (error (concat
             "Cannot calculate outcommented outline-regexp\n"
             "without 'comment-start' character defined!")))
    ;; build outcommented regexp with padding
    (t (concat
-       ;; comment-start 
-       (if (or (not comment-add) (eq comment-add 0))
-           comment-start
-         (let ((comment-add-string comment-start))
-           (dotimes (i comment-add comment-add-string)
-             (setq comment-add-string
-                   (concat comment-add-string comment-start)))))
+       ;; comment-start
+       (outxxtra-calc-comment-region-starter)
        ;; comment-padding
-       (unless
-           (string-equal
-            " "
-            (char-to-string
-             (elt outxxtra-outline-regexp-base 0)))
-         (if (not comment-padding)
-             " "
-           (cond
-            ;; comment-padding is integer
-            ((integer-or-marker-p comment-padding)
-             (dotimes (i comment-padding comment-padding-string)
-               (let ((comment-padding-string ""))
-                 (setq comment-padding-string
-                       (concat comment-padding-string " ")))))
-            ;; comment-padding is string
-            ((stringp comment-padding)
-             comment-padding)
-            (t (error "No valid comment-padding")))))
-       ;; base-regexp
+       (outxxtra-calc-comment-padding)
+       ;; regexp-base
        outxxtra-outline-regexp-base
-       ;; base-regexp does not end with space
+       ;; regexp-base does not end with space
        (unless                          ; a tad naive?
            (string-equal
             " "
@@ -387,53 +408,43 @@ poutxxtra-level-* faces."
           (format "[ %s]" comment-start)
           'OMIT-NULLS) ""))))))
 
-(defun outxxtra-return-heading-at-level (level)
-  "Return an outline heading string at level LEVEL."
-  (and (integer-or-marker-p level) (>= level 1) (<= level 8)
-       (let* ((outline-string
-             (replace-regexp-in-string
-              "[][+]"
-              ""
-              (format "%s" (outxxtra-calc-outline-regexp))))
-             (stars "*"))
-         (dotimes (i (1- level)) (setq stars (concat stars "*")))
-         (replace-regexp-in-string
-          "[*]"
-          stars
-          outline-string))))
+;; *** Return outline-string at given level
 
+(defun outxxtra-calc-outline-string-at-level (level)
+  "Return outline-string at level LEVEL."
+  (let ((base-string (outxxtra-calc-outline-base-string-at-level level)))
+    (if (not outxxtra-outline-regexp-outcommented-p)
+        base-string
+      (concat (outxxtra-calc-comment-region-starter)
+              (outxxtra-calc-comment-padding)
+              base-string))))
 
 (defun outxxtra-calc-outline-base-string-at-level (level)
   "Return an outline heading string at level LEVEL."
-  (and (integer-or-marker-p level) (>= level 1) (<= level 8)
-       (let* ((outline-string
-             (replace-regexp-in-string
-              "[][+]"
-              ""
-              (format "%s" (outxxtra-calc-outline-regexp))))
-             (stars "*"))
-         (dotimes (i (1- level)) (setq stars (concat stars "*")))
-         (replace-regexp-in-string
-          "[*]"
-          stars
-          outline-string))))
+  (let* ((star (outxxtra-calc-outline-level-defining-string))
+         (stars star))
+    (setq stars
+          (funcall
+           outxxtra-calc-outline-base-string-at-level-function
+           level stars star))
+    (replace-regexp-in-string
+     star
+     stars
+     (outxxtra-transform-outline-regexp-base-to-string))))
 
+(defun outxxtra-transform-outline-regexp-base-to-string ()
+  "Transform 'outline-regexp-base' to string by stripping off special chars."
+  (replace-regexp-in-string
+   outxxtra-outline-regexp-special-chars
+   ""
+   outxxtra-outline-regexp-base))
 
-(defun outxxtra-transform-outline-base-regexp-to-string ()
-  (and (integer-or-marker-p level) (>= level 1) (<= level 8)
-       (let* ((outline-string
-             (replace-regexp-in-string
-              "[][+]"
-              ""
-              (format "%s" (outxxtra-calc-outline-regexp))))
-             (stars "*"))
-         (dotimes (i (1- level)) (setq stars (concat stars "*")))
-         (replace-regexp-in-string
-          "[*]"
-          stars
-          outline-string))))
-
-
+(defun outxxtra-calc-outline-level-defining-string ()
+  "Calc string that defines outline level in outline-regexp."
+  (replace-regexp-in-string
+   " "
+   ""
+   (outxxtra-transform-outline-regexp-base-to-string)))
 
 ;; make demote/promote from outline-magic.el work
 (defun outxxtra-make-promotion-headings-list (max-level)
@@ -441,11 +452,11 @@ poutxxtra-level-* faces."
 Set this to a list of MAX-LEVEL headings as they are matched by `outline-regexp',
 top-level heading first."
   (let ((list-of-heading-levels
-         `((,(outxxtra-return-heading-at-level 1) . 1))))
+         `((,(outxxtra-calc-outline-string-at-level 1) . 1))))
     (dotimes (i (1- max-level) list-of-heading-levels)
             (add-to-list
              'list-of-heading-levels
-             `(,(outxxtra-return-heading-at-level (+ i 2)) . ,(+ i 2))
+             `(,(outxxtra-calc-outline-string-at-level (+ i 2)) . ,(+ i 2))
              'APPEND))))
 
 ;; *** Fontify the headlines
