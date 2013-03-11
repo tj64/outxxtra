@@ -3,9 +3,29 @@
 ;; ** Copyright
 
 ;; Copyright (C) 2013 Thorsten Jolitz
-;; This file is not (yet) part of GNU Emacs
 
-;; Author: Thorsten Jolitz  (format "tjolitz%sgmail%s" "@" ".com")
+;; Author: Thorsten Jolitz, Per Abrahamsen
+;; Maintainer: Thorsten Jolitz <tjolitz AT gmail DOT com>
+;; Version: 0.9
+;; Created: 11th February 2013
+;; Keywords: occur, outlines, navigation
+
+;; ** Licence
+
+;; This file is NOT (yet) part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by the Free
+;; Software Foundation, either version 3 of the License, or (at your option)
+;; any later version.
+
+;; This program is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+;; more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; ** Credits
 
@@ -16,7 +36,11 @@
 
 ;; ** Commentary
 
-;; This file provides (almost) the same nice extra features for outline minor
+;; [This file is OBSOLETE and has been merged into `outshine.el'. If you are
+;; interested in 'outline-magic', `out-xtra' and `outxxtra', use `outshine'
+;; instead - it merges all the mentioned libraries] 
+
+;; This library provides (almost) the same nice extra features for outline minor
 ;; mode like Per Abrahamsen's 'out-xtra':
 
 ;; - Change default minor mode key prefix to `C-c'.
@@ -49,10 +73,18 @@
 ;; ** Installation
 
 ;; Insert
-;; (require 'outxxtra)
+
+;; ;; #+begin_src emacs-lisp
+;; ;;  (require 'outxxtra)
+;; ;; #+end_src
+
 ;; in your .emacs file to install.  If you want a different prefix
 ;; key, insert first
-;; (defvar outline-minor-mode-prefix "\C-c")
+
+;; ;; #+begin_src emacs-lisp
+;; ;;  (defvar outline-minor-mode-prefix "\C-c")
+;; ;; #+end_src
+
 ;; or whatever.  The prefix can only be changed before outline (minor)
 ;; mode is loaded.
 
@@ -62,7 +94,7 @@
 ;; |-----------------+-----------------+---------|
 ;; | <2013-02-11 Mo> | Thorsten Jolitz |     0.9 |
 
-;; ** Bugs
+;; ** Bugs and Shortcomings
 
 ;; `outxxtra' uses a fixed format `outline-regexp' (and `outline-level'), the
 ;; one produced when applying `comment-region' on an Org-mode style headline
