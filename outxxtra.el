@@ -36,6 +36,8 @@
 
 ;; ** Commentary
 
+;; *** About outxxtra
+
 ;; [This file is OBSOLETE and has been merged into `outshine.el'. If you are
 ;; interested in 'outline-magic', `out-xtra' and `outxxtra', use `outshine'
 ;; instead - it merges all the mentioned libraries] 
@@ -53,7 +55,7 @@
 ;; outline-level for the active major-mode, rather than defining several blocks
 ;; of major-mode specific functionality.
 
-;; New features of `outxxtra' are:
+;; *** New features of `outxxtra' 
 
 ;; 1. Generic functionality that should work whereever `comment-region' and
 ;; `uncomment-region' work. 
@@ -64,13 +66,7 @@
 ;; It is highly recommended to use `outxxtra' together with `outline-magic' for
 ;; the Org-style `outline-cycle' command.
 
-;; ** Emacs Version
-
-;; `outxxtra.el' works with [GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu, GTK+
-;; Version 3.6.4) of 2013-01-20 on eric]. No attempts of testing with older
-;; versions or other types of Emacs have be made (yet).
-
-;; ** Installation
+;; *** Installation
 
 ;; Insert
 
@@ -87,6 +83,13 @@
 
 ;; or whatever.  The prefix can only be changed before outline (minor)
 ;; mode is loaded.
+
+;; *** Emacs Version
+
+;; `outxxtra.el' works with [GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu, GTK+
+;; Version 3.6.4) of 2013-01-20 on eric]. No attempts of testing with older
+;; versions or other types of Emacs have be made (yet).
+
 
 ;; ** ChangeLog
 
