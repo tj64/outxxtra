@@ -23,8 +23,10 @@ _________________
 
   Copyright (C) 2013 Thorsten Jolitz
 
-  Author: Thorsten Jolitz, Per Abrahamsen Maintainer: Thorsten Jolitz
-  <tjolitz AT gmail DOT com> Version: 0.9 Created: 11th February 2013
+  Author(s): Thorsten Jolitz, Per Abrahamsen
+  Maintainer: Thorsten Jolitz  <tjolitz AT gmail DOT com>
+  Version: 0.9
+  Created: 11th February 2013
   Keywords: occur, outlines, navigation
 
 
@@ -79,11 +81,10 @@ _________________
   New features of `outxxtra' are:
 
   1. Generic functionality that should work whereever `comment-region'
-     and
-  `uncomment-region' work.
+     and  `uncomment-region' work.
 
-  1. Fontification of headlines (copied from Fabrice Niessen's
-  '.emacs')
+  2. Fontification of headlines (copied from Fabrice Niessen's
+     '.emacs')
 
   It is highly recommended to use `outxxtra' together with
   `outline-magic' for the Org-style `outline-cycle' command.
@@ -102,13 +103,16 @@ _________________
 
   Insert
 
-  ;; #+begin_src emacs-lisp (require 'outxxtra) #+end_src
+  #+begin_src emacs-lisp
+   (require 'outxxtra)
+  #+end_src
 
   in your .emacs file to install. If you want a different prefix key,
   insert first
 
-  ;; #+begin_src emacs-lisp (defvar outline-minor-mode-prefix "\C-c")
-  ;;  #+end_src
+  #+begin_src emacs-lisp
+   (defvar outline-minor-mode-prefix "\C-c")
+  #+end_src
 
   or whatever. The prefix can only be changed before outline (minor)
   mode is loaded.
@@ -117,9 +121,9 @@ _________________
 1.7 ChangeLog
 ~~~~~~~~~~~~~
 
-   date  author(s)        version 
-  --------------------------------
-         Thorsten Jolitz      0.9 
+   date             author(s)        version 
+  -------------------------------------------------
+   2013-02-11 Mo   Thorsten Jolitz      0.9 
 
 
 1.8 Bugs and Shortcomings

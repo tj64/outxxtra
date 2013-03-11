@@ -4,7 +4,7 @@
 
 ;; Copyright (C) 2013 Thorsten Jolitz
 
-;; Author: Thorsten Jolitz, Per Abrahamsen
+;; Author(s): Thorsten Jolitz, Per Abrahamsen
 ;; Maintainer: Thorsten Jolitz <tjolitz AT gmail DOT com>
 ;; Version: 0.9
 ;; Created: 11th February 2013
